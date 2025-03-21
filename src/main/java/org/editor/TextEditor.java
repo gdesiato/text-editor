@@ -21,9 +21,11 @@ public class TextEditor extends Application {
     private Stack<String> redoStack = new Stack<>();
     private Label statusLabel;
     private Label wordCountLabel;
+    private Stage mainStage;
 
     @Override
     public void start(Stage primaryStage) {
+        this.mainStage = primaryStage;
         primaryStage.setTitle("JavaFX Text Editor");
         primaryStage.setResizable(false);
 
@@ -48,19 +50,7 @@ public class TextEditor extends Application {
         editMenu.getItems().addAll(undo, redo);
         menuBar.getMenus().add(editMenu);
 
-        // Toolbar
-        ToolBar toolBar = new ToolBar();
-        Button newBtn = new Button("New");
-        Button openBtn = new Button("Open");
-        Button saveBtn = new Button("Save");
-        Button undoBtn = new Button("Undo");
-        Button redoBtn = new Button("Redo");
-        newBtn.setOnAction(e -> createNewTab());
-        openBtn.setOnAction(e -> openFile(primaryStage));
-        saveBtn.setOnAction(e -> saveFile(primaryStage));
-        undoBtn.setOnAction(e -> undoAction());
-        redoBtn.setOnAction(e -> redoAction());
-        toolBar.getItems().addAll(newBtn, openBtn, saveBtn, undoBtn, redoBtn);
+        // Toolbar removed since file menu already provides these actions
 
         // Tab Pane for Multiple Files
         tabPane = new TabPane();
@@ -72,7 +62,7 @@ public class TextEditor extends Application {
         HBox statusBar = new HBox(10, statusLabel, wordCountLabel);
 
         // Layout
-        VBox topContainer = new VBox(menuBar, toolBar);
+        VBox topContainer = new VBox(menuBar);
         BorderPane layout = new BorderPane();
         layout.setTop(topContainer);
         layout.setCenter(tabPane);
@@ -137,8 +127,11 @@ public class TextEditor extends Application {
                     content.append(line).append("\n");
                 }
                 createNewTab();
+                Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
+                currentTab.setText(file.getName());
                 getActiveTextArea().setText(content.toString());
                 updateWordCount(content.toString());
+                mainStage.setTitle("" + file.getAbsolutePath() + "");
             } catch (IOException e) {
                 showAlert("Could not open file.");
             }
@@ -152,6 +145,9 @@ public class TextEditor extends Application {
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(getActiveTextArea().getText());
+                mainStage.setTitle(file.getAbsolutePath());
+                Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
+                currentTab.setText(file.getName());
             } catch (IOException e) {
                 showAlert("Could not save file.");
             }
