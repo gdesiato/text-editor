@@ -11,8 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.io.*;
 import java.util.Stack;
 
@@ -28,7 +26,6 @@ public class TextEditor extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("JavaFX Text Editor");
         primaryStage.setResizable(false);
-        primaryStage.initStyle(StageStyle.UNDECORATED);
 
         // Menu Bar
         MenuBar menuBar = new MenuBar();
