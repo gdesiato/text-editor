@@ -12,13 +12,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.*;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class TextEditor extends Application {
 
     private TabPane tabPane;
-    private Stack<String> undoStack = new Stack<>();
-    private Stack<String> redoStack = new Stack<>();
+    private final Deque<String> undoStack = new ArrayDeque<>();
+    private final Deque<String> redoStack = new ArrayDeque<>();
     private Label statusLabel;
     private Label wordCountLabel;
     private Stage mainStage;
@@ -27,7 +28,7 @@ public class TextEditor extends Application {
     public void start(Stage primaryStage) {
         this.mainStage = primaryStage;
         primaryStage.setTitle("JavaFX Text Editor");
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
 
         // Menu Bar
         MenuBar menuBar = new MenuBar();
@@ -77,6 +78,7 @@ public class TextEditor extends Application {
     private void createNewTab() {
         Tab tab = new Tab("Untitled");
         TextArea textArea = new TextArea();
+        textArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: black; -fx-font-weight: normal;");
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
             undoStack.push(oldValue);
             updateWordCount(newValue);
