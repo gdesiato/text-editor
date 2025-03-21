@@ -1,0 +1,13 @@
+# Maven build folder
+/target/
+
+# IntelliJ IDEA
+/.idea/
+/*.iml
+
+# Logs
+*.log
+
+# macOS system files
+.DS_Store
+
