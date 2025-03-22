@@ -11,15 +11,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 public class TextEditor extends Application {
 
     private TabPane tabPane;
-    private final Deque<String> undoStack = new ArrayDeque<>();
-    private final Deque<String> redoStack = new ArrayDeque<>();
     private Label statusLabel;
     private Label wordCountLabel;
     private Stage mainStage;
@@ -51,8 +51,6 @@ public class TextEditor extends Application {
         editMenu.getItems().addAll(undo, redo);
         menuBar.getMenus().add(editMenu);
 
-        // Toolbar removed since file menu already provides these actions
-
         // Tab Pane for Multiple Files
         tabPane = new TabPane();
         createNewTab();
@@ -77,13 +75,11 @@ public class TextEditor extends Application {
 
     private void createNewTab() {
         Tab tab = new Tab("Untitled");
-        TextArea textArea = new TextArea();
-        textArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: black; -fx-font-weight: normal;");
-        textArea.textProperty().addListener((observable, oldValue, newValue) -> {
-            undoStack.push(oldValue);
-            updateWordCount(newValue);
-        });
-        tab.setContent(textArea);
+        CodeArea codeArea = new CodeArea();
+        codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: black; -fx-font-weight: bold;");
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+        codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
+        tab.setContent(new VirtualizedScrollPane<>(codeArea));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
@@ -94,25 +90,24 @@ public class TextEditor extends Application {
     }
 
     private void undoAction() {
-        if (!undoStack.isEmpty()) {
-            redoStack.push(getActiveTextArea().getText());
-            getActiveTextArea().setText(undoStack.pop());
-            updateWordCount(getActiveTextArea().getText());
+        CodeArea codeArea = getActiveCodeArea();
+        if (codeArea != null) {
+            codeArea.undo();
         }
     }
 
     private void redoAction() {
-        if (!redoStack.isEmpty()) {
-            undoStack.push(getActiveTextArea().getText());
-            getActiveTextArea().setText(redoStack.pop());
-            updateWordCount(getActiveTextArea().getText());
+        CodeArea codeArea = getActiveCodeArea();
+        if (codeArea != null) {
+            codeArea.redo();
         }
     }
 
-    private TextArea getActiveTextArea() {
+    private CodeArea getActiveCodeArea() {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-        if (selectedTab != null) {
-            return (TextArea) selectedTab.getContent();
+        if (selectedTab != null && selectedTab.getContent() instanceof VirtualizedScrollPane) {
+            VirtualizedScrollPane<?> scrollPane = (VirtualizedScrollPane<?>) selectedTab.getContent();
+            return (CodeArea) scrollPane.getContent();
         }
         return null;
     }
@@ -131,9 +126,9 @@ public class TextEditor extends Application {
                 createNewTab();
                 Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
                 currentTab.setText(file.getName());
-                getActiveTextArea().setText(content.toString());
+                getActiveCodeArea().replaceText(content.toString());
                 updateWordCount(content.toString());
-                mainStage.setTitle("" + file.getAbsolutePath() + "");
+                mainStage.setTitle(file.getAbsolutePath());
             } catch (IOException e) {
                 showAlert("Could not open file.");
             }
@@ -146,7 +141,7 @@ public class TextEditor extends Application {
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(getActiveTextArea().getText());
+                writer.write(getActiveCodeArea().getText());
                 mainStage.setTitle(file.getAbsolutePath());
                 Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
                 currentTab.setText(file.getName());
