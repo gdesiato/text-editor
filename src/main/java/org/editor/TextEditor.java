@@ -14,8 +14,11 @@ import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.io.*;
+import java.util.*;
 
 public class TextEditor extends Application {
 
@@ -23,6 +26,7 @@ public class TextEditor extends Application {
     private Label statusLabel;
     private Label wordCountLabel;
     private Stage mainStage;
+    private boolean isSyntaxHighlightingEnabled = true;
 
     @Override
     public void start(Stage primaryStage) {
@@ -38,9 +42,7 @@ public class TextEditor extends Application {
         MenuItem saveFile = new MenuItem("Save");
         MenuItem exitApp = new MenuItem("Exit");
         fileMenu.getItems().addAll(newFile, openFile, saveFile, new SeparatorMenuItem(), exitApp);
-        menuBar.getMenus().add(fileMenu);
 
-        // Edit Menu for Undo/Redo
         Menu editMenu = new Menu("Edit");
         MenuItem undo = new MenuItem("Undo");
         MenuItem redo = new MenuItem("Redo");
@@ -49,7 +51,12 @@ public class TextEditor extends Application {
         undo.setOnAction(e -> undoAction());
         redo.setOnAction(e -> redoAction());
         editMenu.getItems().addAll(undo, redo);
-        menuBar.getMenus().add(editMenu);
+
+        Menu viewMenu = new Menu("View");
+        CheckMenuItem syntaxToggle = getCheckMenuItem();
+        viewMenu.getItems().add(syntaxToggle);
+
+        menuBar.getMenus().addAll(fileMenu, editMenu, viewMenu);
 
         // Tab Pane for Multiple Files
         tabPane = new TabPane();
@@ -69,19 +76,52 @@ public class TextEditor extends Application {
 
         // Scene
         Scene scene = new Scene(layout, 900, 600);
+        scene.getStylesheets().add(getClass().getResource("/syntax.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private CheckMenuItem getCheckMenuItem() {
+        CheckMenuItem syntaxToggle = new CheckMenuItem("Enable Java Syntax Highlighting");
+        syntaxToggle.setSelected(true);
+        syntaxToggle.setOnAction(e -> {
+            isSyntaxHighlightingEnabled = syntaxToggle.isSelected();
+            CodeArea codeArea = getActiveCodeArea();
+            if (codeArea != null) {
+                codeArea.setStyleSpans(0,
+                        isSyntaxHighlightingEnabled
+                                ? JavaSyntaxHighlighter.computeHighlighting(codeArea.getText())
+                                : emptyHighlight(codeArea.getText().length()));
+            }
+        });
+        return syntaxToggle;
     }
 
     private void createNewTab() {
         Tab tab = new Tab("Untitled");
         CodeArea codeArea = new CodeArea();
-        codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: black; -fx-font-weight: bold;");
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+        codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px;");
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
+
+        codeArea.richChanges()
+                .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
+                .subscribe(change -> {
+                    if (isSyntaxHighlightingEnabled) {
+                        codeArea.setStyleSpans(0,
+                                JavaSyntaxHighlighter.computeHighlighting(codeArea.getText()));
+                    }
+                });
+
         tab.setContent(new VirtualizedScrollPane<>(codeArea));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
+    }
+
+    private StyleSpans<Collection<String>> emptyHighlight(int length) {
+        StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
+        builder.add(Collections.emptyList(), length);
+        return builder.create();
     }
 
     private void updateWordCount(String text) {

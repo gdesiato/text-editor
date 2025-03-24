@@ -1,0 +1,21 @@
+.keyword {
+    -fx-fill: #0000ff;   /* Blue for keywords like public, class */
+    -fx-font-weight: bold;
+}
+
+.string {
+    -fx-fill: #008000;   /* Green for string literals */
+}
+
+.comment {
+    -fx-fill: #808080;   /* Gray for comments */
+    -fx-font-style: italic;
+}
+
+.number {
+    -fx-fill: #ff00ff;   /* Magenta for numbers */
+}
+
+.paren, .brace, .bracket, .semicolon {
+    -fx-fill: #000000;   /* Default black */
+}
