@@ -19,3 +19,14 @@
 .paren, .brace, .bracket, .semicolon {
     -fx-fill: #000000;   /* Default black */
 }
+
+.lineno {
+    -fx-background-color: #f0f0f0;
+    -fx-text-fill: gray;
+    -fx-alignment: center-right;
+    -fx-padding: 0 8 0 0;
+}
+
+.code-area .paragraph-graphic {
+    -fx-background-color: #f0f0f0;
+}

@@ -58,6 +58,13 @@ public class TextEditor extends Application {
         CheckMenuItem syntaxToggle = getCheckMenuItem();
         viewMenu.getItems().add(syntaxToggle);
 
+        // menu theme
+        Menu themeMenu = new Menu("Theme");
+        CheckMenuItem darkModeToggle = getMenuItem();
+        themeMenu.getItems().add(darkModeToggle);
+        menuBar.getMenus().add(themeMenu);
+
+
         menuBar.getMenus().addAll(fileMenu, editMenu, viewMenu);
 
         // Tab Pane for Multiple Files
@@ -83,6 +90,21 @@ public class TextEditor extends Application {
         primaryStage.show();
     }
 
+    private CheckMenuItem getMenuItem() {
+        CheckMenuItem darkModeToggle = new CheckMenuItem("Dark Mode");
+
+        darkModeToggle.setOnAction(e -> {
+            Scene scene = mainStage.getScene();
+            scene.getStylesheets().clear();
+            if (darkModeToggle.isSelected()) {
+                scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dark-theme.css")).toExternalForm());
+            } else {
+                scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/syntax.css")).toExternalForm());
+            }
+        });
+        return darkModeToggle;
+    }
+
     private CheckMenuItem getCheckMenuItem() {
         CheckMenuItem syntaxToggle = new CheckMenuItem("Enable Java Syntax Highlighting");
         syntaxToggle.setSelected(true);
@@ -103,7 +125,8 @@ public class TextEditor extends Application {
         Tab tab = new Tab("Untitled");
         CodeArea codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
-        codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px;");
+        codeArea.getStyleClass().add("code-area");
+        codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: inherit;");
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
 
         codeArea.richChanges()
@@ -119,6 +142,7 @@ public class TextEditor extends Application {
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
+
 
     private StyleSpans<Collection<String>> emptyHighlight(int length) {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
@@ -147,8 +171,7 @@ public class TextEditor extends Application {
 
     private CodeArea getActiveCodeArea() {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
-        if (selectedTab != null && selectedTab.getContent() instanceof VirtualizedScrollPane) {
-            VirtualizedScrollPane<?> scrollPane = (VirtualizedScrollPane<?>) selectedTab.getContent();
+        if (selectedTab != null && selectedTab.getContent() instanceof VirtualizedScrollPane<?> scrollPane) {
             return (CodeArea) scrollPane.getContent();
         }
         return null;
