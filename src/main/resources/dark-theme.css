@@ -1,3 +1,10 @@
+/* ---------------------------
+   Base Layout + Background
+---------------------------- */
+.root, .editor-root {
+    -fx-background-color: #1e1e1e;
+}
+
 .code-area {
     -fx-background-color: #1e1e1e;
     -fx-text-fill: #d4d4d4;
@@ -7,6 +14,9 @@
     -fx-fill: #d4d4d4;
 }
 
+/* ---------------------------
+   Syntax Highlighting
+---------------------------- */
 .keyword   { -fx-fill: #569cd6; }
 .string    { -fx-fill: #d69d85; }
 .comment   { -fx-fill: #6a9955; -fx-font-style: italic; }
@@ -16,9 +26,94 @@
     -fx-fill: #d4d4d4;
 }
 
+/* ---------------------------
+   Line Numbers Gutter
+---------------------------- */
 .lineno {
     -fx-background-color: #2d2d2d;
     -fx-text-fill: #858585;
     -fx-alignment: center-right;
     -fx-padding: 0 8 0 0;
+}
+
+/* ---------------------------
+   Menu Bar Styling
+---------------------------- */
+.menu-bar {
+    -fx-background-color: #2b2b2b;
+}
+
+.menu-bar .label {
+    -fx-text-fill: white;
+}
+
+.menu-button {
+    -fx-background-color: transparent;
+}
+
+.menu-item {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: white;
+}
+
+.menu-item .label {
+    -fx-text-fill: white;
+}
+
+.menu-item:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.context-menu {
+    -fx-background-color: #2b2b2b;
+}
+
+/* ---------------------------
+   TabPane + Tabs
+---------------------------- */
+.tab-pane {
+    -fx-background-color: #1e1e1e;
+}
+
+.tab-pane .tab-header-area,
+.tab-pane .tab,
+.tab-pane .tab:selected,
+.tab-pane .tab-label,
+.tab-pane .tab-content-area,
+.tab-pane .headers-region,
+.tab-pane .tab-header-background,
+.tab-pane .tab-container {
+    -fx-background-color: #1e1e1e !important;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: #1e1e1e;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: white;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #3a3a3a;
+}
+
+.tab-pane .tab-label {
+    -fx-text-fill: white;
+}
+
+.status-bar {
+    -fx-alignment: center-left;
+    -fx-padding: 4 10 4 10;
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #2d2d2d;
+    -fx-border-width: 1 0 0 0;
+    -fx-spacing: 10;
+}
+.status-bar .label {
+    -fx-text-fill: #d4d4d4;
+    -fx-font-size: 12px;
 }

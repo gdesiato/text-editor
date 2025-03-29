@@ -75,10 +75,14 @@ public class TextEditor extends Application {
         statusLabel = new Label("Line: 1, Column: 1");
         wordCountLabel = new Label("Words: 0");
         HBox statusBar = new HBox(10, statusLabel, wordCountLabel);
+        statusBar.getStyleClass().add("status-bar");
+        statusLabel.getStyleClass().add("label");
+        wordCountLabel.getStyleClass().add("label");
 
         // Layout
         VBox topContainer = new VBox(menuBar);
         BorderPane layout = new BorderPane();
+        layout.getStyleClass().add("editor-root");
         layout.setTop(topContainer);
         layout.setCenter(tabPane);
         layout.setBottom(statusBar);
