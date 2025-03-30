@@ -42,6 +42,7 @@ public class TextEditor extends Application {
         MenuItem saveFile = new MenuItem("Save");
         MenuItem exitApp = new MenuItem("Exit");
         openFile.setOnAction(e -> openFile(mainStage));
+        newFile.setOnAction(e -> createNewTab());
         saveFile.setOnAction(e -> saveFile(mainStage));
         fileMenu.getItems().addAll(newFile, openFile, saveFile, new SeparatorMenuItem(), exitApp);
 
