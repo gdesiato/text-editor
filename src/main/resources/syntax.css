@@ -30,3 +30,8 @@
 .code-area .paragraph-graphic {
     -fx-background-color: #f0f0f0;
 }
+
+.highlight {
+    -fx-fill: yellow;
+    -fx-font-weight: bold;
+}

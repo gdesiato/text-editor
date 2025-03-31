@@ -117,3 +117,9 @@
     -fx-text-fill: #d4d4d4;
     -fx-font-size: 12px;
 }
+
+.highlight {
+    -fx-fill: #ffcc00;
+    -fx-font-weight: bold;
+}
+

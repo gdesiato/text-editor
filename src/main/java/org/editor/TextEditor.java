@@ -19,6 +19,8 @@ import org.fxmisc.richtext.model.StyleSpansBuilder;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TextEditor extends Application {
 
@@ -134,6 +136,10 @@ public class TextEditor extends Application {
         codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: inherit;");
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
 
+        codeArea.selectedTextProperty().addListener((obs, oldText, newText) -> {
+            highlightWordOccurrences(codeArea, newText);
+        });
+
         codeArea.richChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
                 .subscribe(change -> {
@@ -228,6 +234,35 @@ public class TextEditor extends Application {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    private void highlightWordOccurrences(CodeArea codeArea, String selectedWord) {
+        String text = codeArea.getText();
+
+        if (selectedWord == null || selectedWord.isBlank() || selectedWord.contains(" ")) {
+            if (isSyntaxHighlightingEnabled) {
+                codeArea.setStyleSpans(0, JavaSyntaxHighlighter.computeHighlighting(text));
+            } else {
+                codeArea.setStyleSpans(0, emptyHighlight(text.length()));
+            }
+            return;
+        }
+
+        StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
+        int lastIndex = 0;
+        Matcher matcher = Pattern.compile("\\b" + Pattern.quote(selectedWord) + "\\b").matcher(text);
+
+        while (matcher.find()) {
+            builder.add(Collections.emptyList(), matcher.start() - lastIndex);
+            builder.add(Collections.singleton("highlight"), matcher.end() - matcher.start());
+            lastIndex = matcher.end();
+        }
+
+        builder.add(Collections.emptyList(), text.length() - lastIndex);
+        codeArea.setStyleSpans(0, builder.create());
+    }
+
+
+
 
     public static void main(String[] args) {
         launch(args);
