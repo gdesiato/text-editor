@@ -32,6 +32,7 @@
 }
 
 .highlight {
-    -fx-fill: yellow;
+    -fx-fill: blue;
     -fx-font-weight: bold;
 }
+

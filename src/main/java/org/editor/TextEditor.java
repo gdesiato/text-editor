@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpan;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
@@ -131,22 +132,24 @@ public class TextEditor extends Application {
     private void createNewTab() {
         Tab tab = new Tab("Untitled");
         CodeArea codeArea = new CodeArea();
+        codeArea.replaceText("hello world\nhello again\nsomething else\nhello here too");
+        highlightWordOccurrences(codeArea, "hello");
+
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.getStyleClass().add("code-area");
         codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 13px; -fx-text-fill: inherit;");
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
 
-        codeArea.selectedTextProperty().addListener((obs, oldText, newText) -> {
-            highlightWordOccurrences(codeArea, newText);
+        codeArea.caretPositionProperty().addListener((obs, oldPos, newPos) -> {
+            String word = getWordAtCaret(codeArea, newPos.intValue());
+            highlightWordOccurrences(codeArea, word);
         });
 
         codeArea.richChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
                 .subscribe(change -> {
-                    if (isSyntaxHighlightingEnabled) {
-                        codeArea.setStyleSpans(0,
-                                JavaSyntaxHighlighter.computeHighlighting(codeArea.getText()));
-                    }
+                    String word = getWordAtCaret(codeArea, codeArea.getCaretPosition());
+                    highlightWordOccurrences(codeArea, word);
                 });
 
         tab.setContent(new VirtualizedScrollPane<>(codeArea));
@@ -238,30 +241,71 @@ public class TextEditor extends Application {
     private void highlightWordOccurrences(CodeArea codeArea, String selectedWord) {
         String text = codeArea.getText();
 
-        if (selectedWord == null || selectedWord.isBlank() || selectedWord.contains(" ")) {
-            if (isSyntaxHighlightingEnabled) {
-                codeArea.setStyleSpans(0, JavaSyntaxHighlighter.computeHighlighting(text));
-            } else {
-                codeArea.setStyleSpans(0, emptyHighlight(text.length()));
-            }
+        // If nothing to highlight, just apply syntax highlighting
+        if (selectedWord == null || selectedWord.isBlank() || selectedWord.length() < 2 || selectedWord.contains(" ")) {
+            applySyntaxHighlighting(codeArea);
             return;
         }
 
-        StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
-        int lastIndex = 0;
         Matcher matcher = Pattern.compile("\\b" + Pattern.quote(selectedWord) + "\\b").matcher(text);
+        List<int[]> matches = new ArrayList<>();
 
         while (matcher.find()) {
-            builder.add(Collections.emptyList(), matcher.start() - lastIndex);
-            builder.add(Collections.singleton("highlight"), matcher.end() - matcher.start());
-            lastIndex = matcher.end();
+            matches.add(new int[]{matcher.start(), matcher.end()});
         }
 
-        builder.add(Collections.emptyList(), text.length() - lastIndex);
-        codeArea.setStyleSpans(0, builder.create());
+        StyleSpans<Collection<String>> baseSpans = isSyntaxHighlightingEnabled
+                ? JavaSyntaxHighlighter.computeHighlighting(text)
+                : emptyHighlight(text.length());
+
+        StyleSpansBuilder<Collection<String>> finalSpans = new StyleSpansBuilder<>();
+        int pos = 0;
+        Iterator<StyleSpan<Collection<String>>> it = baseSpans.iterator();
+
+        for (StyleSpan<Collection<String>> baseSpan : baseSpans) {
+            int len = baseSpan.getLength();
+            Collection<String> style = new ArrayList<>(baseSpan.getStyle());
+
+            for (int i = 0; i < len; i++) {
+                int globalPos = pos + i;
+                boolean isHighlighted = matches.stream().anyMatch(r -> globalPos >= r[0] && globalPos < r[1]);
+
+                Collection<String> combined = new ArrayList<>(style);
+                if (isHighlighted) {
+                    combined.add("highlight");
+                }
+                finalSpans.add(combined, 1);
+            }
+            pos += len;
+        }
+        codeArea.setStyleSpans(0, finalSpans.create());
     }
 
 
+
+    private String getWordAtCaret(CodeArea codeArea, int caretPos) {
+        String text = codeArea.getText();
+        if (text.isEmpty() || caretPos < 0 || caretPos > text.length()) return "";
+
+        int start = caretPos;
+        int end = caretPos;
+
+        while (start > 0 && Character.isJavaIdentifierPart(text.charAt(start - 1))) {
+            start--;
+        }
+        while (end < text.length() && Character.isJavaIdentifierPart(text.charAt(end))) {
+            end++;
+        }
+        return text.substring(start, end);
+    }
+
+    private void applySyntaxHighlighting(CodeArea codeArea) {
+        String text = codeArea.getText();
+        StyleSpans<Collection<String>> spans = isSyntaxHighlightingEnabled
+                ? JavaSyntaxHighlighter.computeHighlighting(text)
+                : emptyHighlight(text.length());
+        codeArea.setStyleSpans(0, spans);
+    }
 
 
     public static void main(String[] args) {

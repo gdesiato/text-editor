@@ -119,7 +119,7 @@
 }
 
 .highlight {
-    -fx-fill: #ffcc00;
+    -fx-fill: yellow;
     -fx-font-weight: bold;
 }
 
