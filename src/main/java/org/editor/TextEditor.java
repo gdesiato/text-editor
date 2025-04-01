@@ -132,8 +132,6 @@ public class TextEditor extends Application {
     private void createNewTab() {
         Tab tab = new Tab("Untitled");
         CodeArea codeArea = new CodeArea();
-        codeArea.replaceText("hello world\nhello again\nsomething else\nhello here too");
-        highlightWordOccurrences(codeArea, "hello");
 
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         codeArea.getStyleClass().add("code-area");
@@ -306,7 +304,6 @@ public class TextEditor extends Application {
                 : emptyHighlight(text.length());
         codeArea.setStyleSpans(0, spans);
     }
-
 
     public static void main(String[] args) {
         launch(args);
