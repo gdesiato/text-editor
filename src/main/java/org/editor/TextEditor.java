@@ -279,8 +279,6 @@ public class TextEditor extends Application {
         codeArea.setStyleSpans(0, finalSpans.create());
     }
 
-
-
     private String getWordAtCaret(CodeArea codeArea, int caretPos) {
         String text = codeArea.getText();
         if (text.isEmpty() || caretPos < 0 || caretPos > text.length()) return "";

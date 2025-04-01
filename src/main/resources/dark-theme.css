@@ -7,11 +7,11 @@
 
 .code-area {
     -fx-background-color: #1e1e1e;
-    -fx-text-fill: #d4d4d4;
+    -fx-text-fill: #ffffff;
 }
 
 .code-area .text {
-    -fx-fill: #d4d4d4;
+    -fx-fill: #ffffff;
 }
 
 /* ---------------------------
@@ -119,7 +119,7 @@
 }
 
 .highlight {
-    -fx-fill: yellow;
+    -fx-fill: blue;
     -fx-font-weight: bold;
 }
 
