@@ -14,6 +14,11 @@
     -fx-fill: #ffffff;
 }
 
+.datastructure {
+    -fx-fill: #FC6045;
+    -fx-font-style: bold;
+}
+
 /* ---------------------------
    Syntax Highlighting
 ---------------------------- */
