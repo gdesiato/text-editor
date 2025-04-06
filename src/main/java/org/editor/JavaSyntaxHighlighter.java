@@ -9,7 +9,11 @@ import java.util.regex.Pattern;
 
 public class JavaSyntaxHighlighter {
 
-    // === Java Language Keywords ===
+    private JavaSyntaxHighlighter() {
+        // do nothing
+    }
+
+    // Java Language Keywords
     private static final List<String> KEYWORDS = List.of(
             "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class",
             "const", "continue", "default", "do", "double", "else", "enum", "extends", "final",
@@ -19,14 +23,14 @@ public class JavaSyntaxHighlighter {
             "throw", "throws", "transient", "try", "void", "volatile", "while"
     );
 
-    // === Common Java Data Structures ===
+    // Common Java Data Structures
     private static final List<String> DATA_STRUCTURES = List.of(
             "List", "ArrayList", "LinkedList", "Set", "HashSet", "TreeSet",
             "Map", "HashMap", "TreeMap", "Queue", "Deque", "Stack",
             "Vector", "Hashtable", "ConcurrentHashMap"
     );
 
-    // === Regex Patterns ===
+    // Regex Patterns
     private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
     private static final String DATASTRUCTURE_PATTERN = "\\b(" + String.join("|", DATA_STRUCTURES) + ")\\b";
     private static final String PAREN_PATTERN = "\\(|\\)";
@@ -37,7 +41,7 @@ public class JavaSyntaxHighlighter {
     private static final String COMMENT_PATTERN = "//[^\\n]*|/\\*(.|\\R)*?\\*/";
     private static final String NUMBER_PATTERN = "\\b\\d+(\\.\\d+)?\\b";
 
-    // === Combined Pattern ===
+    // Combined Pattern
     private static final Pattern PATTERN = Pattern.compile(
             "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
                     + "|(?<DATASTRUCTURE>" + DATASTRUCTURE_PATTERN + ")"
@@ -50,7 +54,7 @@ public class JavaSyntaxHighlighter {
                     + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
     );
 
-    // === Main Highlighter Logic ===
+    // Main Highlighter Logic
     public static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;
