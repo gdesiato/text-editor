@@ -12,6 +12,7 @@
 
 .code-area .text {
     -fx-fill: #ffffff;
+    -fx-font-weight: bold;
 }
 
 .datastructure {

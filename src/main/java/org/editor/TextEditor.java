@@ -151,8 +151,6 @@ public class TextEditor extends Application {
         tabPane.getSelectionModel().select(tab);
     }
 
-
-
     private StyleSpans<Collection<String>> emptyHighlight(int length) {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
         builder.add(Collections.emptyList(), length);
