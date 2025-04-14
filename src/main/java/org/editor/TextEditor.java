@@ -46,6 +46,19 @@ public class TextEditor extends Application {
         saveFile.setOnAction(e -> saveFile(mainStage));
         fileMenu.getItems().addAll(newFile, openFile, saveFile, new SeparatorMenuItem(), exitApp);
 
+        Menu fontMenu = new Menu("Font Size");
+
+        MenuItem smallFont = new MenuItem("Small");
+        MenuItem mediumFont = new MenuItem("Medium");
+        MenuItem largeFont = new MenuItem("Large");
+
+        smallFont.setOnAction(e -> setFontSizeForAllTabs(11));
+        mediumFont.setOnAction(e -> setFontSizeForAllTabs(13));
+        largeFont.setOnAction(e -> setFontSizeForAllTabs(16));
+
+        fontMenu.getItems().addAll(smallFont, mediumFont, largeFont);
+        menuBar.getMenus().add(fontMenu);
+
         Menu editMenu = new Menu("Edit");
         MenuItem undo = new MenuItem("Undo");
         MenuItem redo = new MenuItem("Redo");
@@ -231,28 +244,13 @@ public class TextEditor extends Application {
         alert.showAndWait();
     }
 
-    private String getWordAtCaret(CodeArea codeArea, int caretPos) {
-        String text = codeArea.getText();
-        if (text.isEmpty() || caretPos < 0 || caretPos > text.length()) return "";
-
-        int start = caretPos;
-        int end = caretPos;
-
-        while (start > 0 && Character.isJavaIdentifierPart(text.charAt(start - 1))) {
-            start--;
+    private void setFontSizeForAllTabs(int size) {
+        for (Tab tab : tabPane.getTabs()) {
+            if (tab.getContent() instanceof VirtualizedScrollPane<?> scrollPane &&
+                    scrollPane.getContent() instanceof CodeArea codeArea) {
+                codeArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: " + size + "px;");
+            }
         }
-        while (end < text.length() && Character.isJavaIdentifierPart(text.charAt(end))) {
-            end++;
-        }
-        return text.substring(start, end);
-    }
-
-    private void applySyntaxHighlighting(CodeArea codeArea) {
-        String text = codeArea.getText();
-        StyleSpans<Collection<String>> spans = isSyntaxHighlightingEnabled
-                ? JavaSyntaxHighlighter.computeHighlighting(text)
-                : emptyHighlight(text.length());
-        codeArea.setStyleSpans(0, spans);
     }
 
     public static void main(String[] args) {
