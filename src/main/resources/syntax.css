@@ -41,3 +41,8 @@
     -fx-font-weight: bold;
 }
 
+.code-area .text {
+    -fx-fill: #000000;
+    -fx-font-weight: bold;
+}
+
