@@ -36,6 +36,8 @@ public class TextEditor extends Application {
 
         // Menu Bar
         MenuBar menuBar = new MenuBar();
+
+        // --- File Menu ---
         Menu fileMenu = new Menu("File");
         MenuItem newFile = new MenuItem("New");
         MenuItem openFile = new MenuItem("Open");
@@ -46,19 +48,7 @@ public class TextEditor extends Application {
         saveFile.setOnAction(e -> saveFile(mainStage));
         fileMenu.getItems().addAll(newFile, openFile, saveFile, new SeparatorMenuItem(), exitApp);
 
-        Menu fontMenu = new Menu("Font Size");
-
-        MenuItem smallFont = new MenuItem("Small");
-        MenuItem mediumFont = new MenuItem("Medium");
-        MenuItem largeFont = new MenuItem("Large");
-
-        smallFont.setOnAction(e -> setFontSizeForAllTabs(11));
-        mediumFont.setOnAction(e -> setFontSizeForAllTabs(13));
-        largeFont.setOnAction(e -> setFontSizeForAllTabs(16));
-
-        fontMenu.getItems().addAll(smallFont, mediumFont, largeFont);
-        menuBar.getMenus().add(fontMenu);
-
+        // --- Edit Menu ---
         Menu editMenu = new Menu("Edit");
         MenuItem undo = new MenuItem("Undo");
         MenuItem redo = new MenuItem("Redo");
@@ -68,18 +58,34 @@ public class TextEditor extends Application {
         redo.setOnAction(e -> redoAction());
         editMenu.getItems().addAll(undo, redo);
 
+        // --- View Menu ---
         Menu viewMenu = new Menu("View");
         CheckMenuItem syntaxToggle = getCheckMenuItem();
         viewMenu.getItems().add(syntaxToggle);
 
-        // menu theme
+        // --- Font Menu ---
+        Menu fontMenu = new Menu("Font Size");
+        MenuItem smallFont = new MenuItem("Small");
+        MenuItem mediumFont = new MenuItem("Medium");
+        MenuItem largeFont = new MenuItem("Large");
+        smallFont.setOnAction(e -> setFontSizeForAllTabs(11));
+        mediumFont.setOnAction(e -> setFontSizeForAllTabs(13));
+        largeFont.setOnAction(e -> setFontSizeForAllTabs(16));
+        fontMenu.getItems().addAll(smallFont, mediumFont, largeFont);
+
+        // --- Theme Menu ---
         Menu themeMenu = new Menu("Theme");
         CheckMenuItem darkModeToggle = getMenuItem();
         themeMenu.getItems().add(darkModeToggle);
-        menuBar.getMenus().add(themeMenu);
 
-
-        menuBar.getMenus().addAll(fileMenu, editMenu, viewMenu);
+        // --- Add Menus in Correct Order ---
+        menuBar.getMenus().addAll(
+                fileMenu,
+                editMenu,
+                viewMenu,
+                fontMenu,
+                themeMenu
+        );
 
         // Tab Pane for Multiple Files
         tabPane = new TabPane();
