@@ -26,7 +26,6 @@ public class TextEditor extends Application {
     private Label statusLabel;
     private Label wordCountLabel;
     private Stage mainStage;
-    private boolean isSyntaxHighlightingEnabled = true;
 
     @Override
     public void start(Stage primaryStage) {
@@ -109,7 +108,7 @@ public class TextEditor extends Application {
 
         // Scene
         Scene scene = new Scene(layout, 900, 600);
-        scene.getStylesheets().add(getClass().getResource("/syntax.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/syntax.css")).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -131,17 +130,8 @@ public class TextEditor extends Application {
 
     private CheckMenuItem getCheckMenuItem() {
         CheckMenuItem syntaxToggle = new CheckMenuItem("Enable Java Syntax Highlighting");
-        syntaxToggle.setSelected(true);
-        syntaxToggle.setOnAction(e -> {
-            isSyntaxHighlightingEnabled = syntaxToggle.isSelected();
-            CodeArea codeArea = getActiveCodeArea();
-            if (codeArea != null) {
-                codeArea.setStyleSpans(0,
-                        isSyntaxHighlightingEnabled
-                                ? JavaSyntaxHighlighter.computeHighlighting(codeArea.getText())
-                                : emptyHighlight(codeArea.getText().length()));
-            }
-        });
+        syntaxToggle.setSelected(false);
+        syntaxToggle.setDisable(true); // user can't click it
         return syntaxToggle;
     }
 
@@ -155,24 +145,18 @@ public class TextEditor extends Application {
 
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
 
-        codeArea.richChanges()
-                .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
-                .subscribe(change -> {
-                    if (isSyntaxHighlightingEnabled) {
-                        codeArea.setStyleSpans(0, JavaSyntaxHighlighter.computeHighlighting(codeArea.getText()));
-                    } else {
-                        codeArea.setStyleSpans(0, emptyHighlight(codeArea.getText().length()));
-                    }
-                });
+        // Remove syntax highlighting
+        // If you want to keep placeholder styles, you can optionally add:
+        codeArea.setStyleSpans(0, emptyHighlight());
 
         tab.setContent(new VirtualizedScrollPane<>(codeArea));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
     }
 
-    private StyleSpans<Collection<String>> emptyHighlight(int length) {
+    private StyleSpans<Collection<String>> emptyHighlight() {
         StyleSpansBuilder<Collection<String>> builder = new StyleSpansBuilder<>();
-        builder.add(Collections.emptyList(), length);
+        builder.add(Collections.emptyList(), 0);
         return builder.create();
     }
 
@@ -217,7 +201,7 @@ public class TextEditor extends Application {
                 createNewTab();
                 Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
                 currentTab.setText(file.getName());
-                getActiveCodeArea().replaceText(content.toString());
+                Objects.requireNonNull(getActiveCodeArea()).replaceText(content.toString());
                 updateWordCount(content.toString());
                 mainStage.setTitle(file.getAbsolutePath());
             } catch (IOException e) {
@@ -232,7 +216,7 @@ public class TextEditor extends Application {
         File file = fileChooser.showSaveDialog(stage);
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(getActiveCodeArea().getText());
+                writer.write(Objects.requireNonNull(getActiveCodeArea()).getText());
                 mainStage.setTitle(file.getAbsolutePath());
                 Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
                 currentTab.setText(file.getName());
