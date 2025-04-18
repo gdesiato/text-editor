@@ -145,10 +145,6 @@ public class TextEditor extends Application {
 
         codeArea.textProperty().addListener((obs, oldText, newText) -> updateWordCount(newText));
 
-        // Remove syntax highlighting
-        // If you want to keep placeholder styles, you can optionally add:
-        codeArea.setStyleSpans(0, emptyHighlight());
-
         tab.setContent(new VirtualizedScrollPane<>(codeArea));
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
